@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QR Code Studio - 만능 QR 생성기 (URL, Wi-Fi, 계좌번호)</title>
+  <meta name="description" content="URL 링크, 와이파이 자동 접속, 은행 계좌번호까지 간편하게 QR 코드로 생성하고 다운로드하세요.">
+  <link rel="stylesheet" href="style.css">
+  <!-- QRCode.js 라이브러리 CDN (독립 실행 및 로컬 파일 실행 지원) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+  <div class="background-decorations">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
+
+  <div class="app-container">
+    <header class="app-header">
+      <div class="badge">✨ Multi-purpose QR Studio</div>
+      <h1 class="app-title">QR Code Studio</h1>
+      <p class="app-subtitle">URL, Wi-Fi 접속, 송금용 계좌번호를 세련된 QR 코드로 생성하세요.</p>
+    </header>
+
+    <main class="main-card">
+      <!-- 탭 내비게이션 -->
+      <nav class="type-tabs" role="tablist">
+        <button type="button" class="tab-btn active" data-type="url" id="tab-url">
+          <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+          </svg>
+          URL / 텍스트
+        </button>
+        <button type="button" class="tab-btn" data-type="wifi" id="tab-wifi">
+          <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 12.55a11 11 0 0 1 14.08 0"></path>
+            <path d="M1.42 9a16 16 0 0 1 21.16 0"></path>
+            <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+            <line x1="12" y1="20" x2="12.01" y2="20"></line>
+          </svg>
+          와이파이 (Wi-Fi)
+        </button>
+        <button type="button" class="tab-btn" data-type="bank" id="tab-bank">
+          <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+            <line x1="2" y1="10" x2="22" y2="10"></line>
+          </svg>
+          계좌번호
+        </button>
+      </nav>
+
+      <!-- 입력 폼 영역 -->
+      <div class="input-section">
+        <!-- 1. URL / 일반 텍스트 패널 -->
+        <div id="panel-url" class="tab-panel active">
+          <label for="url-input" class="input-label">웹사이트 링크 또는 일반 텍스트</label>
+          <div class="input-wrapper">
+            <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+            </svg>
+            <input 
+              type="text" 
+              id="url-input" 
+              placeholder="https://example.com" 
+              autocomplete="off"
+              spellcheck="false"
+            >
+            <button id="clear-btn" class="clear-btn" title="입력 지우기" aria-label="입력 지우기" style="display: none;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- 2. 와이파이 자동접속 패널 -->
+        <div id="panel-wifi" class="tab-panel">
+          <div class="field-grid">
+            <div class="field-group">
+              <label for="wifi-ssid" class="input-label">와이파이 이름 (SSID)</label>
+              <input type="text" id="wifi-ssid" class="custom-input" placeholder="예: MyHome_5G" autocomplete="off">
+            </div>
+            <div class="field-group">
+              <label for="wifi-type" class="input-label">보안 방식</label>
+              <select id="wifi-type" class="custom-select">
+                <option value="WPA" selected>WPA / WPA2 / WPA3 (일반)</option>
+                <option value="WEP">WEP</option>
+                <option value="nopass">비밀번호 없음 (개방형)</option>
+              </select>
+            </div>
+          </div>
+          <div class="field-group" id="wifi-pass-group">
+            <label for="wifi-pass" class="input-label">비밀번호</label>
+            <div class="input-wrapper">
+              <input type="text" id="wifi-pass" class="custom-input" placeholder="와이파이 비밀번호" autocomplete="off">
+            </div>
+          </div>
+          <div class="checkbox-group">
+            <label class="custom-checkbox">
+              <input type="checkbox" id="wifi-hidden">
+              <span class="checkmark"></span>
+              숨겨진 네트워크 (Hidden SSID)
+            </label>
+          </div>
+          <p class="field-hint">💡 스마트폰 카메라로 QR을 스캔하면 비밀번호 입력 없이 자동으로 Wi-Fi에 연결됩니다.</p>
+        </div>
+
+        <!-- 3. 계좌번호 패널 -->
+        <div id="panel-bank" class="tab-panel">
+          <div class="field-grid">
+            <div class="field-group">
+              <label for="bank-select" class="input-label">은행 선택</label>
+              <select id="bank-select" class="custom-select">
+                <option value="국민은행">KB국민은행</option>
+                <option value="신한은행">신한은행</option>
+                <option value="우리은행">우리은행</option>
+                <option value="하나은행">하나은행</option>
+                <option value="카카오뱅크" selected>카카오뱅크</option>
+                <option value="토스뱅크">토스뱅크</option>
+                <option value="농협은행">NH농협은행</option>
+                <option value="기업은행">IBK기업은행</option>
+                <option value="케이뱅크">케이뱅크</option>
+                <option value="SC제일은행">SC제일은행</option>
+                <option value="우체국">우체국</option>
+                <option value="새마을금고">새마을금고</option>
+                <option value="신협">신협</option>
+                <option value="기타">기타 (직접 입력)</option>
+              </select>
+            </div>
+            <div class="field-group" id="custom-bank-group" style="display: none;">
+              <label for="custom-bank-name" class="input-label">은행명 직접 입력</label>
+              <input type="text" id="custom-bank-name" class="custom-input" placeholder="예: 씨티은행">
+            </div>
+            <div class="field-group">
+              <label for="bank-holder" class="input-label">예금주 (선택)</label>
+              <input type="text" id="bank-holder" class="custom-input" placeholder="예: 홍길동">
+            </div>
+          </div>
+          <div class="field-group">
+            <label for="bank-account" class="input-label">계좌번호 (- 제외 또는 포함)</label>
+            <input type="text" id="bank-account" class="custom-input" placeholder="예: 3333-01-1234567" autocomplete="off">
+          </div>
+          <div class="field-group">
+            <label for="bank-amount" class="input-label">송금 요청 금액 (선택, 원)</label>
+            <input type="number" id="bank-amount" class="custom-input" placeholder="예: 10000" min="0">
+          </div>
+          <p class="field-hint">💡 스캔 시 은행, 계좌번호, 예금주 정보가 깔끔하게 텍스트로 인식되어 복사 및 송금이 편리해집니다.</p>
+        </div>
+
+        <!-- 공통 옵션 컨트롤 (크기, 색상) -->
+        <div class="options-container">
+          <div class="option-item">
+            <label for="qr-size">크기</label>
+            <select id="qr-size">
+              <option value="200">200 x 200</option>
+              <option value="260" selected>260 x 260</option>
+              <option value="360">360 x 360</option>
+              <option value="500">500 x 500 (고화질)</option>
+            </select>
+          </div>
+          <div class="option-item">
+            <label for="color-dark">QR 색상</label>
+            <div class="color-picker-wrap">
+              <input type="color" id="color-dark" value="#111827">
+              <span id="dark-color-code">#111827</span>
+            </div>
+          </div>
+          <div class="option-item">
+            <label for="color-light">배경 색상</label>
+            <div class="color-picker-wrap">
+              <input type="color" id="color-light" value="#ffffff">
+              <span id="light-color-code">#ffffff</span>
+            </div>
+          </div>
+        </div>
+
+        <button id="generate-btn" class="btn btn-primary">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7"></rect>
+            <rect x="14" y="3" width="7" height="7"></rect>
+            <rect x="14" y="14" width="7" height="7"></rect>
+            <rect x="3" y="14" width="7" height="7"></rect>
+          </svg>
+          QR 코드 생성하기
+        </button>
+      </div>
+
+      <!-- 결과 뷰 -->
+      <div class="result-section">
+        <div class="qr-preview-wrapper" id="qr-wrapper">
+          <div id="qr-container" class="qr-container">
+            <!-- QR 코드가 여기에 동적으로 렌더링됩니다 -->
+          </div>
+          <div id="qr-placeholder" class="qr-placeholder">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="placeholder-icon">
+              <rect x="3" y="3" width="7" height="7"></rect>
+              <rect x="14" y="3" width="7" height="7"></rect>
+              <rect x="14" y="14" width="7" height="7"></rect>
+              <rect x="3" y="14" width="7" height="7"></rect>
+            </svg>
+            <span>정보를 입력하고 생성 버튼을 누르면<br>스마트 QR 코드가 완성됩니다!</span>
+          </div>
+        </div>
+
+        <!-- 생성된 정보 미리보기 배지 -->
+        <div id="qr-info-summary" class="qr-info-summary" style="display: none;"></div>
+
+        <div id="action-buttons" class="action-buttons" style="display: none;">
+          <button id="download-btn" class="btn btn-download">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            이미지 다운로드 (PNG)
+          </button>
+          <button id="copy-btn" class="btn btn-secondary">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+            클립보드에 복사
+          </button>
+        </div>
+      </div>
+    </main>
+
+    <!-- 토스트 알림 메시지 -->
+    <div id="toast" class="toast">알림 메시지</div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
