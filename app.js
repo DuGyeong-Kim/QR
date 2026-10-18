@@ -29,25 +29,25 @@ document.addEventListener('DOMContentLoaded', () => {
   const bankDigitHint = document.getElementById('bank-digit-hint');
   const bankAccountCounter = document.getElementById('bank-account-counter');
 
-  // 은행별 유효 계좌번호 자릿수 규칙 정의
+  // 은행별 유효 계좌번호 자릿수 규칙 및 예시(placeholder) 정의
   const BANK_RULES = {
-    '카카오뱅크': { digits: [13], label: '13자리' },
-    '토스뱅크': { digits: [12], label: '12자리' },
-    '국민은행': { digits: [12, 14], label: '12 또는 14자리' },
-    '신한은행': { digits: [11, 12, 14], label: '11, 12 또는 14자리' },
-    '우리은행': { digits: [13, 14], label: '13 또는 14자리' },
-    '하나은행': { digits: [14], label: '14자리' },
-    '농협은행': { digits: [11, 13, 14], label: '11, 13 또는 14자리' },
-    '기업은행': { digits: [10, 11, 12, 14], label: '10~14자리' },
-    '케이뱅크': { digits: [12], label: '12자리' },
-    'SC제일은행': { digits: [11, 14], label: '11 또는 14자리' },
-    '우체국': { digits: [14], label: '14자리' },
-    '새마을금고': { digits: [13, 14], label: '13 또는 14자리' },
-    '신협': { digits: [12, 14], label: '12 또는 14자리' },
-    '기타': { digits: null, label: '자유 입력' }
+    '카카오뱅크': { digits: [13], label: '13자리', example: '예: 3333-01-1234567 (13자리)' },
+    '토스뱅크': { digits: [12], label: '12자리', example: '예: 1000-0123-4567 (12자리)' },
+    '국민은행': { digits: [12, 14], label: '12 또는 14자리', example: '예: 123401-04-123456 (14자리)' },
+    '신한은행': { digits: [11, 12, 14], label: '11, 12 또는 14자리', example: '예: 110-123-456789 (12자리)' },
+    '우리은행': { digits: [13, 14], label: '13 또는 14자리', example: '예: 1002-123-456789 (13자리)' },
+    '하나은행': { digits: [14], label: '14자리', example: '예: 123-910001-12345 (14자리)' },
+    '농협은행': { digits: [11, 13, 14], label: '11, 13 또는 14자리', example: '예: 302-1234-5678-91 (13자리)' },
+    '기업은행': { digits: [10, 11, 12, 14], label: '10~14자리', example: '예: 010-1234-5678 (11자리 휴대폰형)' },
+    '케이뱅크': { digits: [12], label: '12자리', example: '예: 100-123-456789 (12자리)' },
+    'SC제일은행': { digits: [11, 14], label: '11 또는 14자리', example: '예: 123-20-123456 (11자리)' },
+    '우체국': { digits: [14], label: '14자리', example: '예: 123456-01-123456 (14자리)' },
+    '새마을금고': { digits: [13, 14], label: '13 또는 14자리', example: '예: 9002-1234-5678-9 (13자리)' },
+    '신협': { digits: [12, 14], label: '12 또는 14자리', example: '예: 131-001-123456 (12자리)' },
+    '기타': { digits: null, label: '자유 입력', example: '계좌번호를 입력하세요' }
   };
 
-  // 은행 안내 문구 갱신
+  // 은행 안내 문구 및 placeholder 갱신
   function updateBankHint() {
     const selected = bankSelect.value;
     const rule = BANK_RULES[selected];
@@ -57,6 +57,9 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         bankDigitHint.textContent = '자릿수 제한 없음';
       }
+    }
+    if (bankAccount && rule && rule.example) {
+      bankAccount.placeholder = rule.example;
     }
     updateAccountCounter();
   }
@@ -233,7 +236,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (currentTab === 'url') {
       const raw = urlInput.value.trim();
       if (!raw) {
-        showToast('⚠️ URL 또는 텍스트를 입력해주세요.');
+        alert('URL 또는 텍스트를 입력해주세요.');
         urlInput.focus();
         return null;
       }
@@ -251,7 +254,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (currentTab === 'wifi') {
       const ssid = wifiSsid.value.trim();
       if (!ssid) {
-        showToast('⚠️ 와이파이 이름(SSID)을 입력해주세요.');
+        alert('와이파이 이름(SSID)을 입력해주세요.');
         wifiSsid.focus();
         return null;
       }
@@ -260,7 +263,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const isHidden = wifiHidden.checked;
 
       if (type !== 'nopass' && !pass) {
-        showToast('⚠️ 와이파이 비밀번호를 입력해주세요.');
+        alert('와이파이 비밀번호를 입력해주세요.');
         wifiPass.focus();
         return null;
       }
