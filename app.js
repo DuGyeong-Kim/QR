@@ -26,6 +26,72 @@ document.addEventListener('DOMContentLoaded', () => {
   const bankAccount = document.getElementById('bank-account');
   const bankHolder = document.getElementById('bank-holder');
   const bankAmount = document.getElementById('bank-amount');
+  const bankDigitHint = document.getElementById('bank-digit-hint');
+  const bankAccountCounter = document.getElementById('bank-account-counter');
+
+  // 은행별 유효 계좌번호 자릿수 규칙 정의
+  const BANK_RULES = {
+    '카카오뱅크': { digits: [13], label: '13자리' },
+    '토스뱅크': { digits: [12], label: '12자리' },
+    '국민은행': { digits: [12, 14], label: '12 또는 14자리' },
+    '신한은행': { digits: [11, 12, 14], label: '11, 12 또는 14자리' },
+    '우리은행': { digits: [13, 14], label: '13 또는 14자리' },
+    '하나은행': { digits: [14], label: '14자리' },
+    '농협은행': { digits: [11, 13, 14], label: '11, 13 또는 14자리' },
+    '기업은행': { digits: [10, 11, 12, 14], label: '10~14자리' },
+    '케이뱅크': { digits: [12], label: '12자리' },
+    'SC제일은행': { digits: [11, 14], label: '11 또는 14자리' },
+    '우체국': { digits: [14], label: '14자리' },
+    '새마을금고': { digits: [13, 14], label: '13 또는 14자리' },
+    '신협': { digits: [12, 14], label: '12 또는 14자리' },
+    '기타': { digits: null, label: '자유 입력' }
+  };
+
+  // 은행 안내 문구 갱신
+  function updateBankHint() {
+    const selected = bankSelect.value;
+    const rule = BANK_RULES[selected];
+    if (bankDigitHint) {
+      if (rule && rule.digits) {
+        bankDigitHint.textContent = `${selected}: ${rule.label}`;
+      } else {
+        bankDigitHint.textContent = '자릿수 제한 없음';
+      }
+    }
+    updateAccountCounter();
+  }
+
+  // 실시간 자릿수 카운트 갱신
+  function updateAccountCounter() {
+    const digitsOnly = bankAccount.value.replace(/[^0-9]/g, '');
+    const count = digitsOnly.length;
+    const selected = bankSelect.value;
+    const rule = BANK_RULES[selected];
+
+    if (!bankAccountCounter) return;
+
+    if (count === 0) {
+      bankAccountCounter.textContent = '현재 숫자: 0자리';
+      bankAccountCounter.style.color = 'var(--text-muted)';
+      return;
+    }
+
+    if (rule && rule.digits) {
+      const isValid = rule.digits.includes(count);
+      if (isValid) {
+        bankAccountCounter.textContent = `현재 숫자: ${count}자리 (올바른 자릿수 ✓)`;
+        bankAccountCounter.style.color = '#34d399'; // 초록
+      } else {
+        bankAccountCounter.textContent = `현재 숫자: ${count}자리 (권장: ${rule.label})`;
+        bankAccountCounter.style.color = '#f87171'; // 빨강
+      }
+    } else {
+      bankAccountCounter.textContent = `현재 숫자: ${count}자리`;
+      bankAccountCounter.style.color = 'var(--text-muted)';
+    }
+  }
+
+  // 공통 옵션 요소
 
   // 공통 옵션 요소
   const generateBtn = document.getElementById('generate-btn');
@@ -73,14 +139,23 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // 은행 선택 변경 시 기타 직접입력 필드 토글
+  // 은행 선택 변경 시 기타 직접입력 필드 토글 및 힌트 갱신
   bankSelect.addEventListener('change', () => {
     if (bankSelect.value === '기타') {
       customBankGroup.style.display = 'flex';
     } else {
       customBankGroup.style.display = 'none';
     }
+    updateBankHint();
   });
+
+  // 계좌번호 입력 시 실시간 자릿수 카운트
+  bankAccount.addEventListener('input', () => {
+    updateAccountCounter();
+  });
+
+  // 초기 로드 시 힌트 초기화
+  updateBankHint();
 
   // URL 입력 시 클리어 버튼 표시/숨김
   urlInput.addEventListener('input', () => {
@@ -214,7 +289,23 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       const account = bankAccount.value.trim();
       if (!account) {
-        showToast('⚠️ 계좌번호를 입력해주세요.');
+        alert('계좌번호를 입력해주세요.');
+        bankAccount.focus();
+        return null;
+      }
+
+      // 숫자만 추출하여 자릿수 검증
+      const digitsOnly = account.replace(/[^0-9]/g, '');
+      const selectedBank = bankSelect.value;
+      const rule = BANK_RULES[selectedBank];
+
+      if (rule && rule.digits && !rule.digits.includes(digitsOnly.length)) {
+        alert(
+          `[계좌번호 자릿수 오류]\n\n` +
+          `선택하신 [${selectedBank}]의 올바른 계좌번호 자릿수는 ${rule.label}입니다.\n` +
+          `현재 입력된 자릿수: ${digitsOnly.length}자리\n\n` +
+          `계좌번호를 다시 확인하신 후 입력해주세요.`
+        );
         bankAccount.focus();
         return null;
       }

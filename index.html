@@ -141,8 +141,12 @@
             </div>
           </div>
           <div class="field-group">
-            <label for="bank-account" class="input-label">계좌번호 (- 제외 또는 포함)</label>
+            <div style="display: flex; justify-content: space-between; align-items: baseline;">
+              <label for="bank-account" class="input-label">계좌번호 (- 제외 또는 포함)</label>
+              <span id="bank-digit-hint" style="font-size: 0.78rem; color: #a5b4fc; font-weight: 500;">카카오뱅크: 13자리</span>
+            </div>
             <input type="text" id="bank-account" class="custom-input" placeholder="예: 3333-01-1234567" autocomplete="off">
+            <span id="bank-account-counter" style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">현재 숫자: 0자리</span>
           </div>
           <div class="field-group">
             <label for="bank-amount" class="input-label">송금 요청 금액 (선택, 원)</label>
